@@ -3,11 +3,7 @@
 namespace App\Providers;
 
 use App\Events\EventCreate;
-use App\Events\UpdateGamesRawgEvent;
-use App\Events\UpdateGamesSteamEvent;
 use App\Listeners\EventListener;
-use App\Listeners\UpdateGamesRawgListener;
-use App\Listeners\UpdateGamesSteamListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -25,12 +21,6 @@ class EventServiceProvider extends ServiceProvider
 //        ],
         EventCreate::class => [
             EventListener::class,
-        ],
-        UpdateGamesRawgEvent::class => [
-            UpdateGamesRawgListener::class,
-        ],
-        UpdateGamesSteamEvent::class => [
-            UpdateGamesSteamListener::class,
         ],
     ];
 }

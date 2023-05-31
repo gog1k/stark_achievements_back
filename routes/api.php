@@ -26,12 +26,6 @@ Route::middleware(['auth:api', 'scope:superuser'])->group(function () {
 Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])->group(function () {
     Route::get('/all', [\App\Http\Controllers\Controller::class, 'helloAction']);
 
-    Route::group(['prefix' => 'games'], function () {
-        Route::get('{id}', [\App\Http\Controllers\GamesController::class, 'getAction'])->where('id', '[0-9]+');
-        Route::get('/autocomplete-list/{mask}', [\App\Http\Controllers\GamesController::class, 'autocompleteListAction']);
-        Route::post('/rating/{mask}', [\App\Http\Controllers\GamesController::class, 'setRatingAction'])->where('id', '[0-9]+');
-    });
-
     Route::group(['prefix' => 'admin'], function () {
         Route::group(['prefix' => 'projects'], function () {
             Route::get('/', [\App\Http\Controllers\Admin\ProjectController::class, 'getListAction']);
