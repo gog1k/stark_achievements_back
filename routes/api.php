@@ -65,7 +65,6 @@ Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])
             Route::get('/template/{templateId}',[\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForTemplateAction']);
             Route::get('/item/{itemId}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForItemAction']);
             Route::post('/create', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'createAction']);
-            Route::get('/create', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'createAction']);
             Route::post('/{id}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'updateAction'])->where('id', '[0-9]+');
         });
     });

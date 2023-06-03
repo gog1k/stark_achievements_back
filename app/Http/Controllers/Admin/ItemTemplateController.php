@@ -90,7 +90,7 @@ class ItemTemplateController extends Controller
 
         $roomItem->roomItemTemplates()->attach($roomItemTemplate->id);
 
-        return response($roomItem);
+        return response($roomItemTemplate);
     }
 
     public function updateAction(Request $request): Response
