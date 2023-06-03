@@ -4,13 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * @property int $id
- * @property boolean $active
- * @property string $name
- * @property string $type
+ * @property boolean active
+ * @property string created_at
+ * @property string updated_at
+ * @property int default_room_item_id
+ * @property string name
+ * @property int project_id
+ * @property string coordinates
+ * @property string rotation
+ * @property string template
  */
 class RoomItem extends BaseModel
 {
@@ -23,9 +30,12 @@ class RoomItem extends BaseModel
      */
     protected $fillable = [
         'active',
-        'type',
+        'default_room_item_id',
         'name',
         'project_id',
+        'coordinates',
+        'rotation',
+        'template',
     ];
 
     /**
@@ -39,6 +49,20 @@ class RoomItem extends BaseModel
         'laravel_through_key'
     ];
 
+    protected $casts = [
+        'active' => 'bool',
+    ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function ($item) {
+            if (empty($item->template)) {
+                $item->template = DefaultRoomItem::findOrFail($item->default_room_item_id)->template;
+            }
+        });
+    }
+
     /**
      * @return BelongsTo
      */
@@ -50,22 +74,38 @@ class RoomItem extends BaseModel
     }
 
     /**
-     * @return HasManyThrough
+     * @return BelongsToMany
      */
-    public function roomItemTemplates(): HasManyThrough
+    public function roomItemTemplates(): BelongsToMany
     {
-        return $this->hasManyThrough(
+        return $this->belongsToMany(
             ItemTemplate::class,
-            RoomItemTemplate::class,
-            'room_item_id',
-            'id',
-            'id',
-            'item_template_id'
-        );
+            'room_item_item_template',
+        )->withTimestamps();
     }
 
     public function roomItemTemplatesIds()
     {
         return $this->roomItemTemplates->pluck('id');
+    }
+
+    public function defaultItem(): HasOne
+    {
+        return $this->hasOne(
+            DefaultRoomItem::class,
+            'id',
+            'default_room_item_id'
+        );
+    }
+
+    public function prePareforUser()
+    {
+        return [
+            'coordinates' => $this->coordinates,
+            'rotation' => $this->rotation,
+            'object' => $this->defaultItem->object,
+            'material' => $this->defaultItem->material,
+            'template' => $this->template,
+        ];
     }
 }

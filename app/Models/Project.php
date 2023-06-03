@@ -30,7 +30,6 @@ class Project extends BaseModel
         'created_at',
         'updated_at',
         'laravel_through_key',
-        'api_key',
     ];
 
     /**

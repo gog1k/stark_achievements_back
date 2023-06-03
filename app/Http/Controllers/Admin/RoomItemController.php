@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RoomItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rules\File;
 
 class RoomItemController extends Controller
 {
@@ -30,6 +31,21 @@ class RoomItemController extends Controller
         ]);
     }
 
+    public function allowListForTemplateAction($id): Response
+    {
+        $response = RoomItem
+            ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds());
+
+        if (!empty($id)) {
+            $response->where(['id' => $id,]);
+        }
+
+        return response($response->get()->map(fn($item) => [
+            'name' => $item['name'],
+            'id' => $item['id'],
+        ]));
+    }
+
     public function getAction(int $id): Response
     {
         return response(
@@ -39,39 +55,61 @@ class RoomItemController extends Controller
 
     public function createAction(Request $request): Response
     {
-        $request->validate([
-            'active' => 'required|boolean',
+        $params = $request->validate([
+            'active' => 'required|bool',
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
             'project_id' => 'required|integer|exists:projects,id',
+            'coordinates' => 'required|string',
+            'rotation' => 'required|string',
+            'default_room_item_id' => 'required|integer|exists:default_room_items,id',
         ]);
 
-        $roomItem = RoomItem::create([
-            'active' => $request->active,
-            'name' => $request->name,
-            'type' => $request->type,
-            'project_id' => $request->project_id,
+        $request->validate([
+            'file' => [
+                File::image()
+                    ->max(12 * 256),
+                'nullable'
+            ]
         ]);
+
+        if ($request->file) {
+            $path = $request->file->store('templates');
+            $params['template'] = asset('storage/' . $path);
+        }
+
+        $roomItem = RoomItem::create($params);
 
         return response($roomItem);
     }
 
     public function updateAction(Request $request): Response
     {
+        $params = $request->validate([
+            'active' => 'required|bool',
+            'name' => 'required|string|max:255',
+            'coordinates' => 'required|string',
+            'rotation' => 'required|string',
+        ]);
+
         $request->validate([
             'id' => 'required|integer|exists:room_items,id',
-            'active' => 'required|boolean',
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'file' => [
+                File::image()
+                    ->max(12 * 256),
+                'nullable'
+            ]
         ]);
+
+        if ($request->file) {
+            $path = $request->file->store('templates');
+            $params['template'] = asset('storage/' . $path);
+        }
 
         $roomItem = RoomItem::findOrFail($request->id);
 
-        $roomItem->active = $request->active;
-        $roomItem->name = $request->name;
-        $roomItem->type = $request->type;
+        $roomItem->update($params);
 
-        $roomItem->save();
+        $roomItem->refresh();
 
         return response($roomItem);
     }

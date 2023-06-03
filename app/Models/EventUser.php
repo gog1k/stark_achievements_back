@@ -24,7 +24,7 @@ class EventUser extends BaseModel
      */
     protected $fillable = [
         'event_id',
-        'user_id',
+        'partner_user_id',
         'count',
         'fields',
         'fields_hash',
@@ -51,7 +51,7 @@ class EventUser extends BaseModel
     public function user()
     {
         return $this->hasOne(
-            User::class,
+            PartnerUser::class,
             'id',
             'user_id'
         );

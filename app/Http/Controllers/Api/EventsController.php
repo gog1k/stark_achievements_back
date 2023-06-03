@@ -6,8 +6,10 @@ use App\Events\EventCreate;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventUser;
-use App\Models\User;
+use App\Models\PartnerUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 
 class EventsController extends Controller
@@ -15,7 +17,7 @@ class EventsController extends Controller
     public function createAction(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|max:255|exists:users,email',
+            'user_id' => 'required|string',
             'code' => 'required|string|exists:events,code,project_id,' . auth()->id(),
             'fields' => 'array',
         ]);
@@ -49,9 +51,15 @@ class EventsController extends Controller
 
         $fieldsHash = hash('sha256', json_encode($fields));
 
-        $user = User::where([
-            'email' => $request->email,
-        ])->first();
+        if (!($user = PartnerUser::where([
+            'project_id' => auth()->id(),
+            'user_id' => $request->user_id,
+        ])->first())) {
+            $user = PartnerUser::create([
+                'project_id' => auth()->id(),
+                'user_id' => $request->user_id,
+            ]);
+        }
 
         $eventWithUser = $event->with('eventUsers')
             ->whereHas('eventUsers', fn($query) => $query->where([

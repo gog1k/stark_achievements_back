@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ItemTemplate;
 use App\Models\Project;
+use App\Models\RoomItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rules\File;
@@ -13,7 +14,11 @@ class ItemTemplateController extends Controller
 {
     public function indexAction(): Response
     {
-        return response(ItemTemplate::get());
+        return response(ItemTemplate
+            ::with('items')
+            ->whereHas('items', fn($query) => $query->where(['room_items.project_id' => auth()->user()
+                ->projectsAllowedForAdministrationIds()]))
+            ->get());
     }
 
     public function allowListAction($id): Response
@@ -50,6 +55,9 @@ class ItemTemplateController extends Controller
 
     public function getAction($id): Response
     {
+        if (empty($id)) {
+            return $this->indexAction();
+        }
         $template = ItemTemplate::with('items')->findOrFail($id);
         $items = $template->items->pluck('id');
         return response(array_merge($template->toArray(), ['items' => $items]));
@@ -57,47 +65,60 @@ class ItemTemplateController extends Controller
 
     public function createAction(Request $request): Response
     {
-        $request->validate([
+        $params = $request->validate([
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
-            'template' => 'required|string',
         ]);
 
-        $roomItem = ItemTemplate::create([
-            'active' => $request->active,
-            'name' => $request->name,
-            'template' => $request->template,
+        $request->validate([
+            'room_item_id' => 'required|integer|exists:room_items,id',
+            'file' => [
+                File::image()
+                    ->max(12 * 256),
+                'required'
+            ]
         ]);
+
+        $path = $request->file->store('templates');
+        $params['template'] = asset('storage/' . $path);
+
+        $roomItem = RoomItem
+            ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds())
+            ->where(['id' => $request->room_item_id])
+            ->firstOrFail();
+        $roomItemTemplate = ItemTemplate::create($params);
+
+        $roomItem->roomItemTemplates()->attach($roomItemTemplate->id);
 
         return response($roomItem);
     }
 
     public function updateAction(Request $request): Response
     {
+        $params = $request->validate([
+            'active' => 'required|boolean',
+            'name' => 'required|string|max:255',
+        ]);
+
         $request->validate([
             'id' => 'required|integer|exists:room_items,id',
-            'active' => 'required',
-            'name' => 'required|string|max:255',
             'file' => [
                 File::image()
-                    ->min(1024)
-                    ->max(12 * 1024),
+                    ->max(12 * 256),
                 'nullable'
             ]
         ]);
 
-        $itemTemplate = ItemTemplate::findOrFail($request->id);
-
         if ($request->file) {
             $path = $request->file->store('templates');
-            $itemTemplate->template = asset('storage/' . $path);
+            $params['template'] = asset('storage/' . $path);
         }
 
-        $itemTemplate->active = (bool)$request->active;
-        $itemTemplate->name = $request->name;
+        $itemTemplate = ItemTemplate::findOrFail($request->id);
 
+        $itemTemplate->update($params);
 
-        $itemTemplate->save();
+        $itemTemplate->refresh();
 
         return response($itemTemplate);
     }

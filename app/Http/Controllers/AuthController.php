@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
+use App\Models\Project;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -42,6 +44,22 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
+        $project = Project::create([
+            'name' => $request->name,
+        ]);
+
+        $user->projectsUser()->create([
+            'project_id' => $project->id,
+        ]);
+
+        $user->refresh();
+
+        foreach ($user->projectsUser as $projectUser) {
+            $projectUser->groups()->attach(Group::where('name', 'ProjectAdmin')->first()->id);
+            return response($this->getUserInfo($user));
+        }
+
+        $user->refresh();
         return response($this->getUserInfo($user));
     }
 

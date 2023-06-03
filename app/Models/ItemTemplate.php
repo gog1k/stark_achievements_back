@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * @property boolean $active
  * @property-read RoomItem $items
  * @property-read array getItemsIdsAttribute
  */
-class ItemTemplate extends Pivot
+class ItemTemplate extends BaseModel
 {
     protected $table = 'item_templates';
 

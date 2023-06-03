@@ -14,12 +14,16 @@ use Laravel\Passport\HasApiTokens;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property-read BelongsToMany groups
- * @property-read HasMany projectsUser
+ * @property-read BelongsToMany $groups
+ * @property-read HasMany $projectsUser
  */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    protected $guarded = [
+        'id',
+    ];
 
     /**
      * The attributes that are mass assignable.
