@@ -116,7 +116,7 @@ class RoomItem extends BaseModel
             ],
             'object' => $this->defaultItem->object,
             'material' => $this->defaultItem->material,
-            'template' => $this->defaultItem->template,
+            'template' => $this->template,
         ];
     }
 }
