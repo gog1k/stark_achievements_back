@@ -2,17 +2,17 @@
 
 namespace App\Events;
 
-use App\Models\EventUser;
+use App\Models\EventPartnerUser;
 
 class EventCreate
 {
-    public EventUser $eventUser;
+    public EventPartnerUser $eventPartnerUser;
 
     /**
-     * @param EventUser $eventUser
+     * @param EventPartnerUser $eventPartnerUser
      */
-    public function __construct(EventUser $eventUser)
+    public function __construct(EventPartnerUser $eventPartnerUser)
     {
-        $this->eventUser = $eventUser;
+        $this->eventPartnerUser = $eventPartnerUser;
     }
 }

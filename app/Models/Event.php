@@ -67,10 +67,10 @@ class Event extends Model
     /**
      * @return HasMany
      */
-    public function eventUsers(): HasMany
+    public function eventPartnerUsers(): HasMany
     {
         return $this->hasMany(
-            EventUser::class,
+            EventPartnerUser::class,
         );
     }
 

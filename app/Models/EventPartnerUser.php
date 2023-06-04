@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $fields
  * @property string $fields_hash
  */
-class EventUser extends BaseModel
+class EventPartnerUser extends BaseModel
 {
     use HasFactory;
 
-    protected $table = 'event_user';
+    protected $table = 'event_partner_user';
 
     /**
      * The attributes that are mass assignable.

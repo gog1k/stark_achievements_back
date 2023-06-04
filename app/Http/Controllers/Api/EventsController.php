@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\EventCreate;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
-use App\Models\EventUser;
+use App\Models\EventPartnerUser;
 use App\Models\PartnerUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
@@ -17,7 +17,7 @@ class EventsController extends Controller
     public function createAction(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|string',
+            'user_id' => 'required',
             'code' => 'required|string|exists:events,code,project_id,' . auth()->id(),
             'fields' => 'array',
         ]);
@@ -61,29 +61,29 @@ class EventsController extends Controller
             ]);
         }
 
-        $eventWithUser = $event->with('eventUsers')
-            ->whereHas('eventUsers', fn($query) => $query->where([
-                'user_id' => $user->id,
+        $eventWithUser = $event->with('eventPartnerUsers')
+            ->whereHas('eventPartnerUsers', fn($query) => $query->where([
+                'partner_user_id' => $user->id,
                 'fields_hash' => $fieldsHash,
             ]))
             ->first();
 
         if (empty($eventWithUser) ) {
-            $eventUser = EventUser::create([
+            $eventPartnerUser = EventPartnerUser::create([
                 'event_id' => $event->id,
-                'user_id' => $user->id,
+                'partner_user_id' => $user->id,
                 'count' => 1,
                 'fields' => $fields,
                 'fields_hash' => $fieldsHash,
             ]);
         } else {
-            $eventUser = $eventWithUser->eventUsers()->where(['fields_hash' => $fieldsHash,])->first();
-            $eventUser->count++;
-            $eventUser->save();
-            $eventUser->refresh();
+            $eventPartnerUser = $eventWithUser->eventPartnerUsers()->where(['fields_hash' => $fieldsHash,])->first();
+            $eventPartnerUser->count++;
+            $eventPartnerUser->save();
+            $eventPartnerUser->refresh();
         }
 
-        event(new EventCreate($eventUser));
+        event(new EventCreate($eventPartnerUser));
 
         return response([]);
     }

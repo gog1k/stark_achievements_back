@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Models\EventUser;
+use App\Models\EventPartnerUser;
 use Exception;
 
 class EventJobs extends Jobs
@@ -16,9 +16,9 @@ class EventJobs extends Jobs
     public $queue = 'events';
 
     /**
-     * @var EventUser
+     * @var EventPartnerUser
      */
-    private EventUser $eventUser;
+    private EventPartnerUser $eventPartnerUser;
 
     /**
      * @var string
@@ -29,12 +29,12 @@ class EventJobs extends Jobs
      * Create a new job instance.
      *
      * @param string $eventType
-     * @param EventUser $eventUser
+     * @param EventPartnerUser $eventPartnerUser
      */
-    public function __construct(string $eventType, EventUser $eventUser)
+    public function __construct(string $eventType, EventPartnerUser $eventPartnerUser)
     {
         $this->eventType = $eventType;
-        $this->eventUser = $eventUser;
+        $this->eventPartnerUser = $eventPartnerUser;
     }
 
     /**
@@ -45,18 +45,18 @@ class EventJobs extends Jobs
      */
     public function handle(): bool
     {
-        $eventUser = $this->eventUser->refresh();
-        $achievment = $eventUser->event->achievments()->where([
-            'event_fields_hash' => $eventUser->fields_hash,
+        $eventPartnerUser = $this->eventPartnerUser->refresh();
+        $achievment = $eventPartnerUser->event->achievments()->where([
+            'event_fields_hash' => $eventPartnerUser->fields_hash,
         ])->first();
 
         if (
-            $eventUser
+            $eventPartnerUser
             && $achievment
-            && empty($achievment->users()->where(['user_id' => $eventUser->user_id])->first())
-            && $eventUser->count >= $achievment->count
+            && empty($achievment->users()->where(['user_id' => $eventPartnerUser->user_id])->first())
+            && $eventPartnerUser->count >= $achievment->count
         ) {
-            $achievment->users()->sync($eventUser->user_id, false);
+            $achievment->users()->sync($eventPartnerUser->user_id, false);
         }
 
         return true;

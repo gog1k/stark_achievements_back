@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $event_id
  * @property array $event_fields
  * @property string $event_fields_hash
+ * @property-read  BelongsToMany $partnerUsers
  */
 class Achievement extends BaseModel
 {
@@ -88,10 +89,10 @@ class Achievement extends BaseModel
     /**
      * @return BelongsToMany
      */
-    public function users(): BelongsToMany
+    public function partnerUsers(): BelongsToMany
     {
         return $this->belongsToMany(
-            User::class,
+            PartnerUser::class,
         )->withTimestamps();
     }
 }
