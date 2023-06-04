@@ -19,7 +19,7 @@ class RoomItemController extends Controller
                 ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds());
         }
 
-        $response = $response->with('project')->paginate(10);
+        $response = $response->with(['project','defaultItem'])->paginate(10);
 
         return response([
             'items' => $response->items(),
@@ -49,7 +49,10 @@ class RoomItemController extends Controller
     public function getAction(int $id): Response
     {
         return response(
-            RoomItem::where(['id' => $id])->first()
+            RoomItem
+                ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds())
+                ->where(['id' => $id])
+                ->first()
         );
     }
 

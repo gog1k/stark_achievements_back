@@ -14,11 +14,15 @@ class ItemTemplateController extends Controller
 {
     public function indexAction(): Response
     {
-        return response(ItemTemplate
-            ::with('items')
-            ->whereHas('items', fn($query) => $query->where(['room_items.project_id' => auth()->user()
-                ->projectsAllowedForAdministrationIds()]))
-            ->get());
+        return response(
+            ItemTemplate
+                ::with('item.defaultItem')
+                ->whereHas('items', fn($query) => $query
+                    ->where([
+                        'room_items.project_id' => auth()->user()->projectsAllowedForAdministrationIds()
+                    ]))
+                ->get()
+        );
     }
 
     public function allowListAction($id): Response
@@ -31,7 +35,11 @@ class ItemTemplateController extends Controller
 
         $itemTemplates = ItemTemplate
             ::where(['active' => 1])
-            ->whereHas('items', fn($query) => $query->whereIn('room_items.id', $response->roomItems->pluck('id')))
+            ->whereHas('items', fn($query) => $query
+                ->where([
+                    'room_items.project_id' => auth()->user()->projectsAllowedForAdministrationIds()
+                ])
+                ->whereIn('room_items.id', $response->roomItems->pluck('id')))
             ->get()->toArray();
 
         return response($itemTemplates);
@@ -40,16 +48,28 @@ class ItemTemplateController extends Controller
     public function listForTemplateAction($templateId): Response
     {
         return response(
-            ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $templateId])
-            )->get()
+            ItemTemplate
+                ::with('item.defaultItem')
+                ->whereHas('items', fn($query) => $query
+                    ->where([
+                        'room_items.project_id' => auth()->user()->projectsAllowedForAdministrationIds()
+                    ])
+                    ->where(['room_items.id' => $templateId]))
+                ->get()
         );
     }
 
     public function listForItemAction($itemId): Response
     {
         return response(
-            ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $itemId])
-            )->get()
+            ItemTemplate
+                ::with('item.defaultItem')
+                ->whereHas('items', fn($query) => $query
+                    ->where([
+                        'room_items.project_id' => auth()->user()->projectsAllowedForAdministrationIds()
+                    ])
+                    ->where(['room_items.id' => $itemId]))
+                ->get()
         );
     }
 

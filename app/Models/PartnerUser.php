@@ -23,7 +23,8 @@ class PartnerUser extends Model
     {
         $project = Project
             ::where(['id' => $this->project_id])
-            ->with('roomItems')
+            ->with('roomItems', fn($query) => $query->where('active', true))
+            ->whereHas('roomItems', fn($query) => $query->where('active', true))
             ->firstOrFail();
 
         $items = [];

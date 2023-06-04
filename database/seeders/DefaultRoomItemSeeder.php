@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\DefaultRoomItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class DefaultRoomItemSeeder extends Seeder
 {
@@ -25,9 +26,12 @@ class DefaultRoomItemSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            $obj = $this->uploadFile($item, 'obj');
-            $material = $this->uploadFile($item, 'mtl');
-            $template = $this->uploadFile($item, 'jpg');
+
+            $filename = Str::uuid()->toString();
+
+            $obj = $this->uploadFile($filename, $item, 'obj');
+            $material = $this->uploadFile($filename, $item, 'mtl');
+            $template = $this->uploadFile($filename, $item, 'jpg');
 
             DefaultRoomItem::create([
                 'code' => $item,
@@ -45,13 +49,13 @@ class DefaultRoomItemSeeder extends Seeder
      * @param $type
      * @return string
      */
-    public function uploadFile($file, $type): string
+    public function uploadFile($name, $file, $type): string
     {
         $file = UploadedFile::fake()->createWithContent(
             $type . '/' . $file . '.' . $type,
-            file_get_contents(__DIR__ . '/defaultRoomItems/' . $file . '.' . $type)
+            str_replace('%FILENAME%', $name, file_get_contents(__DIR__ . '/defaultRoomItems/' . $file . '.' . $type))
         );
 
-        return $file->store($type);
+        return $file->storeAs($type, $name . '.' . $type);
     }
 }

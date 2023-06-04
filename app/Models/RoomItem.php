@@ -100,12 +100,23 @@ class RoomItem extends BaseModel
 
     public function prePareforUser()
     {
+        [$cx,$cy,$cz] = explode(',', $this->coordinates);
+        [$rx,$ry,$rz] = explode(',', $this->rotation);
+
         return [
-            'coordinates' => $this->coordinates,
-            'rotation' => $this->rotation,
+            'coordinates' => [
+                'x' => $cx,
+                'y' => $cy,
+                'z' => $cz,
+            ],
+            'rotation' => [
+                'x' => $rx,
+                'y' => $ry,
+                'z' => $rz,
+            ],
             'object' => $this->defaultItem->object,
             'material' => $this->defaultItem->material,
-            'template' => $this->template,
+            'template' => $this->defaultItem->template,
         ];
     }
 }

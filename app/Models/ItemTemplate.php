@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * @property boolean $active
@@ -36,6 +37,17 @@ class ItemTemplate extends BaseModel
 
     public function items(): HasManyThrough {
         return $this->hasManyThrough(
+            RoomItem::class,
+            RoomItemTemplate::class,
+            'item_template_id',
+            'id',
+            'id',
+            'room_item_id'
+        );
+    }
+
+    public function item(): HasOneThrough {
+        return $this->hasOneThrough(
             RoomItem::class,
             RoomItemTemplate::class,
             'item_template_id',
