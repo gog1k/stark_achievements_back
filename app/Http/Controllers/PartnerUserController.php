@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Achievement;
 use App\Models\PartnerUser;
-use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class PartnerUserController extends BaseController
 {
+
+    public $partnerUser;
+    public $access;
+
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function pageAction($user_uid)
+    private function setUser($user_uid)
     {
         if (empty($userData = Redis::get($user_uid))) {
-            throw new \Exception('user not found');
+            throw new Exception('user not found');
         }
 
         $userData = json_decode($userData, true);
@@ -27,8 +32,60 @@ class PartnerUserController extends BaseController
             'access' => 'required|string|in:view,write',
         ])->validate();
 
-        $user = PartnerUser::where(['id' => $userData['id']])->first();
+        $this->partnerUser = PartnerUser::where(['id' => $userData['id']])->first();
+        $this->access = $userData['access'];
+    }
 
-        return response($user->getRoom($userData['access']));
+    /**
+     * @throws Exception
+     */
+    public function itemsAction($user_uid)
+    {
+        $this->setUser($user_uid);
+        return response($this->partnerUser->getRoom($this->access));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function statsAction($user_uid)
+    {
+        $this->setUser($user_uid);
+        return response($this->partnerUser->getStats($this->access));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function achievementsAction($user_uid)
+    {
+        $this->setUser($user_uid);
+        return response($this->partnerUser->getAchievements($this->access));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setAchievementTemplateAction(Request $request, $user_uid)
+    {
+        $this->setUser($user_uid);
+
+        $request->validate([
+            'achievementId' => 'required|integer'
+        ]);
+
+        $achievement = Achievement
+            ::with('itemTemplate')
+            ->findOrFail($request->achievementId);
+
+        if (!$achievement
+            ->itemTemplate
+            ->partnerUsers()
+            ->where(['partner_users.id' => $this->partnerUser->id])
+            ->first()) {
+            $achievement->itemTemplate->partnerUsers()->attach($this->partnerUser->id);
+        }
+
+        return true;
     }
 }

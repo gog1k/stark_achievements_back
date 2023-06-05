@@ -46,17 +46,17 @@ class EventJobs extends Jobs
     public function handle(): bool
     {
         $eventPartnerUser = $this->eventPartnerUser->refresh();
-        $achievment = $eventPartnerUser->event->achievments()->where([
+        $achievment = $eventPartnerUser->event->achievements()->where([
             'event_fields_hash' => $eventPartnerUser->fields_hash,
         ])->first();
 
         if (
             $eventPartnerUser
             && $achievment
-            && empty($achievment->users()->where(['user_id' => $eventPartnerUser->user_id])->first())
+            && empty($achievment->partnerUsers()->where(['user_id' => $eventPartnerUser->user_id])->first())
             && $eventPartnerUser->count >= $achievment->count
         ) {
-            $achievment->users()->sync($eventPartnerUser->user_id, false);
+            $achievment->partnerUsers()->sync($eventPartnerUser->id, false);
         }
 
         return true;

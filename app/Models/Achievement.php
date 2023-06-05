@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property bool $active
@@ -94,5 +96,37 @@ class Achievement extends BaseModel
         return $this->belongsToMany(
             PartnerUser::class,
         )->withTimestamps();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function eventPartnerUserByEvent(): HasMany
+    {
+        return $this->hasMany(
+            EventPartnerUser::class,
+            'event_id',
+            'event_id',
+        );
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function eventPartnerUserByHash(): HasMany
+    {
+        return $this->hasMany(
+            EventPartnerUser::class,
+            'fields_hash',
+            'event_fields_hash',
+        );
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function eventPartnerUser()
+    {
+        return $this->eventPartnerUserByEvent->intersect($this->eventPartnerUserByHash)->first();
     }
 }

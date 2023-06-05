@@ -80,4 +80,9 @@ Route::middleware(['auth:apiKey'])->group(function () {
     });
 });
 
-Route::get('/user-page/{user}', [\App\Http\Controllers\PartnerUserController::class, 'pageAction']);
+Route::group(['prefix' => 'user-page'], function () {
+    Route::get('/items/{user}', [\App\Http\Controllers\PartnerUserController::class, 'itemsAction']);
+    Route::get('/stats/{user}', [\App\Http\Controllers\PartnerUserController::class, 'statsAction']);
+    Route::get('/achievements/{user}', [\App\Http\Controllers\PartnerUserController::class, 'achievementsAction']);
+    Route::post('/achievements/{user}', [\App\Http\Controllers\PartnerUserController::class, 'setAchievementTemplateAction']);
+});

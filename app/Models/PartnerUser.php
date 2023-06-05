@@ -35,4 +35,45 @@ class PartnerUser extends Model
 
         return $items;
     }
+
+    public function getStats()
+    {
+        $sql = Achievement
+            ::where(['project_id' => $this->project_id])
+            ->with('eventPartnerUserByEvent')
+            ->with('eventPartnerUserByHash')
+            ->whereHas('eventPartnerUserByEvent')
+            ->whereHas('eventPartnerUserByHash');
+
+        $result = [];
+
+        foreach ($sql->get() as $item) {
+            $progress = floor(($item->eventPartnerUser()->count / $item->count) * 100);
+
+            if ($progress >= 100) {
+                continue;
+            }
+
+            $result[] = [
+                'achievement' => $item->name,
+                'progress' => $progress,
+            ];
+        }
+
+        return $result;
+    }
+
+    public function getAchievements()
+    {
+        return Achievement
+            ::where(['project_id' => $this->project_id])
+            ->with('partnerUsers', fn($query) => $query->where('partner_user_id', $this->id))
+            ->whereHas('partnerUsers', fn($query) => $query->where('partner_user_id', $this->id))
+            ->get()->map(function ($achievement) {
+                return [
+                    'id' => $achievement->id,
+                    'achievement' => $achievement->name,
+                ];
+            });
+    }
 }

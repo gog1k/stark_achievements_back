@@ -77,7 +77,7 @@ class Event extends Model
     /**
      * @return HasMany
      */
-    public function achievments(): HasMany
+    public function achievements(): HasMany
     {
         return $this->hasMany(
             Achievement::class

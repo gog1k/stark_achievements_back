@@ -11,12 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_template_partner_user', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->integer('item_template_id');
-            $table->integer('partner_user_id');
-        });
+        Schema::dropIfExists('achievement_user');
     }
 
     /**
@@ -24,6 +19,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_template_partner_user');
+        Schema::create('achievement_user', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->integer('achievement_id')->index();
+            $table->integer('user_id')->index();
+        });
     }
 };
