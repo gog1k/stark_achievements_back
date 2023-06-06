@@ -98,10 +98,22 @@ class RoomItem extends BaseModel
         );
     }
 
-    public function prePareforUser()
+    public function prePareforUser($userId)
     {
-        [$cx,$cy,$cz] = explode(',', $this->coordinates);
-        [$rx,$ry,$rz] = explode(',', $this->rotation);
+        $customTemplate = $this
+            ->roomItemTemplates()
+            ->whereHas('partnerUsers', fn($query) => $query->where([
+                'partner_user_id' => $userId
+            ]))
+            ->latest()
+            ->first();
+
+        if (!is_null($customTemplate)) {
+            $customTemplate = $customTemplate->template;
+        }
+
+        [$cx, $cy, $cz] = explode(',', $this->coordinates);
+        [$rx, $ry, $rz] = explode(',', $this->rotation);
 
         return [
             'coordinates' => [
@@ -116,7 +128,7 @@ class RoomItem extends BaseModel
             ],
             'object' => $this->defaultItem->object,
             'material' => $this->defaultItem->material,
-            'template' => $this->template,
+            'template' => $customTemplate ?? $this->template,
         ];
     }
 }

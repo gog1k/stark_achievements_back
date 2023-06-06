@@ -47,6 +47,7 @@ class EventJobs extends Jobs
     {
         $eventPartnerUser = $this->eventPartnerUser->refresh();
         $achievment = $eventPartnerUser->event->achievements()->where([
+            'active' => true,
             'event_fields_hash' => $eventPartnerUser->fields_hash,
         ])->first();
 

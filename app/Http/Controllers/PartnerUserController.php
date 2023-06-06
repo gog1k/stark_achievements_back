@@ -51,6 +51,9 @@ class PartnerUserController extends BaseController
     public function statsAction($user_uid)
     {
         $this->setUser($user_uid);
+        if ($this->access !== 'write') {
+            return response([]);
+        }
         return response($this->partnerUser->getStats($this->access));
     }
 
@@ -60,6 +63,9 @@ class PartnerUserController extends BaseController
     public function achievementsAction($user_uid)
     {
         $this->setUser($user_uid);
+        if ($this->access !== 'write') {
+            return response([]);
+        }
         return response($this->partnerUser->getAchievements($this->access));
     }
 
@@ -70,13 +76,28 @@ class PartnerUserController extends BaseController
     {
         $this->setUser($user_uid);
 
+        if ($this->access !== 'write') {
+            return response(false);
+        }
+
         $request->validate([
             'achievementId' => 'required|integer'
         ]);
 
         $achievement = Achievement
-            ::with('itemTemplate')
+            ::with('itemTemplate.item')
             ->findOrFail($request->achievementId);
+
+        $roomItem = $achievement->itemTemplate->item;
+
+        foreach (
+            $roomItem
+                ->roomItemTemplates()
+                ->whereHas('partnerUsers', fn($query) => $query->where(['partner_user_id' => $this->partnerUser->id]))
+                ->get() as $template
+        ) {
+            $template->partnerUsers()->detach($this->partnerUser->id);
+        }
 
         if (!$achievement
             ->itemTemplate
@@ -86,6 +107,6 @@ class PartnerUserController extends BaseController
             $achievement->itemTemplate->partnerUsers()->attach($this->partnerUser->id);
         }
 
-        return true;
+        return response(true);
     }
 }

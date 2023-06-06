@@ -47,7 +47,7 @@ class AchievementController extends Controller
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
             'project_id' => 'required|integer|exists:projects,id',
-            'count' => 'required|integer|exists:projects,id',
+            'count' => 'required|integer|min:1',
             'item_template_id' => 'required|integer|exists:item_templates,id',
             'event_id' => 'required|integer|exists:events,id',
             'event_fields' => 'array',

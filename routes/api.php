@@ -72,7 +72,7 @@ Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])
 
 Route::middleware(['auth:apiKey'])->group(function () {
     Route::group(['prefix' => 'api'], function () {
-        Route::get('/user-room-link/{user_id}', [\App\Http\Controllers\Api\PartnerController::class, 'userRoomLinkAction']);
+        Route::get('/user-room-link/{user_id}/{access}', [\App\Http\Controllers\Api\PartnerController::class, 'userRoomLinkAction']);
 
         Route::group(['prefix' => 'event'], function () {
             Route::post('/create', [\App\Http\Controllers\Api\EventsController::class, 'createAction']);

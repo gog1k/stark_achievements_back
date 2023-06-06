@@ -62,7 +62,7 @@ class EventsController extends Controller
             'name' => $request->name,
             'code' => $request->code,
             'project_id' => $request->project_id,
-            'fields' => explode(',', $request->fields),
+            'fields' => $request->fields ? explode(',', $request->fields) : [],
         ]);
 
         return response($events);
