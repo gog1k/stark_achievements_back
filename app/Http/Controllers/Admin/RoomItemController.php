@@ -65,7 +65,10 @@ class RoomItemController extends Controller
             'coordinates' => 'required|string',
             'rotation' => 'required|string',
             'default_room_item_id' => 'required|integer|exists:default_room_items,id',
+            'link' => 'url|nullable',
         ]);
+
+        $params['link'] = $params['link'] ?? '';
 
         $request->validate([
             'file' => [
@@ -92,7 +95,10 @@ class RoomItemController extends Controller
             'name' => 'required|string|max:255',
             'coordinates' => 'required|string',
             'rotation' => 'required|string',
+            'link' => 'url|nullable',
         ]);
+
+        $params['link'] = $params['link'] ?? '';
 
         $request->validate([
             'id' => 'required|integer|exists:room_items,id',

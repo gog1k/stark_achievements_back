@@ -36,6 +36,7 @@ class RoomItem extends BaseModel
         'coordinates',
         'rotation',
         'template',
+        'link',
     ];
 
     /**
@@ -129,6 +130,7 @@ class RoomItem extends BaseModel
             'object' => $this->defaultItem->object,
             'material' => $this->defaultItem->material,
             'template' => $customTemplate ?? $this->template,
+            'link' => $this->link ?? '',
         ];
     }
 }

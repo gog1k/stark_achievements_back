@@ -59,20 +59,6 @@ class ItemTemplateController extends Controller
         );
     }
 
-    public function listForItemAction($itemId): Response
-    {
-        return response(
-            ItemTemplate
-                ::with('item.defaultItem')
-                ->whereHas('items', fn($query) => $query
-                    ->where([
-                        'room_items.project_id' => auth()->user()->projectsAllowedForAdministrationIds()
-                    ])
-                    ->where(['room_items.id' => $itemId]))
-                ->get()
-        );
-    }
-
     public function getAction($id): Response
     {
         if (empty($id)) {

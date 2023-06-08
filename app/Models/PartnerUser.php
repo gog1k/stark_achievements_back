@@ -39,7 +39,10 @@ class PartnerUser extends Model
     public function getStats()
     {
         $sql = Achievement
-            ::where(['project_id' => $this->project_id])
+            ::where([
+                'active' => true,
+                'project_id' => $this->project_id,
+            ])
             ->with('eventPartnerUserByEvent')
             ->with('eventPartnerUserByHash')
             ->whereHas('eventPartnerUserByEvent')
