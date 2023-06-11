@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Models\EventPartnerUser;
 use Exception;
+use Illuminate\Support\Facades\Http;
 
 class EventJobs extends Jobs
 {
@@ -46,18 +47,35 @@ class EventJobs extends Jobs
     public function handle(): bool
     {
         $eventPartnerUser = $this->eventPartnerUser->refresh();
-        $achievment = $eventPartnerUser->event->achievements()->where([
+        $achievement = $eventPartnerUser->event->achievements()->where([
             'active' => true,
             'event_fields_hash' => $eventPartnerUser->fields_hash,
         ])->first();
 
         if (
             $eventPartnerUser
-            && $achievment
-            && empty($achievment->partnerUsers()->where(['user_id' => $eventPartnerUser->user_id])->first())
-            && $eventPartnerUser->count >= $achievment->count
+            && $achievement
+            && empty($achievement->partnerUsers()->where(['user_id' => $eventPartnerUser->partner_user_id])->first())
+            && $eventPartnerUser->count >= $achievement->count
         ) {
-            $achievment->partnerUsers()->sync($eventPartnerUser->id, false);
+            $achievement->partnerUsers()->sync($eventPartnerUser->id, false);
+
+
+            if ($achievement->project->callback_url) {
+                $data = [
+                    "type" => "newUserAchievement",
+                    "project_id" => $achievement->project->id,
+                    "user_id" => $eventPartnerUser->partner_user_id,
+                    "achievement" => $achievement->name,
+                ];
+
+                ksort($data);
+                $sign = hash('sha256', urldecode(http_build_query($data)) . $achievement->project->api_key);
+
+                Http::withHeaders([
+                    'signature' => $sign
+                ])->post($achievement->project->callback_url, $data);
+            }
         }
 
         return true;

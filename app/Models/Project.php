@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 class Project extends BaseModel
@@ -20,6 +19,7 @@ class Project extends BaseModel
     protected $fillable = [
         'name',
         'api_key',
+        'callback_url',
     ];
 
     protected $casts = [

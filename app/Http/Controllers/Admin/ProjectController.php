@@ -88,28 +88,37 @@ class ProjectController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'callback_url' => 'url',
         ]);
 
-        $Project = Project::create([
+        $project = Project::create([
             'name' => $request->name,
+            'callback_url' => $request->callback_url,
         ]);
 
-        return response($Project);
+        return response($project);
     }
 
     public function updateAction(Request $request): Response
     {
         $request->validate([
             'id' => 'required|integer|exists:projects,id',
-            'name' => 'required|string|max:255',
+            'name' => 'string|max:255',
+            'callback_url' => 'url',
         ]);
 
-        $Project = Project::findOrFail($request->id);
+        $project = Project::findOrFail($request->id);
 
-        $Project->name = $request->name;
+        if ($request->name) {
+            $project->name = $request->name;
+        }
 
-        $Project->save();
+        if ($request->callback_url) {
+            $project->callback_url = $request->callback_url;
+        }
 
-        return response($Project);
+        $project->save();
+
+        return response($project);
     }
 }
