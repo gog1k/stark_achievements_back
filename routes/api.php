@@ -31,6 +31,7 @@ Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])
             Route::get('/', [\App\Http\Controllers\Admin\ProjectController::class, 'getListAction']);
             Route::get('/{id}', [\App\Http\Controllers\Admin\ProjectController::class, 'getAction'])->where('id', '[0-9]+');
             Route::get('/allowList', [\App\Http\Controllers\Admin\ProjectController::class, 'allowListAction']);
+            Route::post('/getApiKey', [\App\Http\Controllers\Admin\ProjectController::class, 'getApiKeyAction']);
 
             Route::middleware(['auth:api', 'scope:superuser'])->group(function () {
                 Route::post('/create', [\App\Http\Controllers\Admin\ProjectController::class, 'createAction']);

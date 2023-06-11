@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class ProjectController extends Controller
 {
@@ -29,6 +31,36 @@ class ProjectController extends Controller
                 'total' => $response->total(),
             ]
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getApiKeyAction(Request $request): Response
+    {
+        $request->validate([
+            'project_id' => 'required|integer',
+            'login' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
+        ]);
+
+        $user = User::where([
+            'name' => $request->login
+        ])->firstOrFail();
+
+        if (auth()->user()->id !== $user->id) {
+            throw new \Exception('Incorrect user');
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            throw new \Exception('Params incorrect');
+        }
+
+        $projectUser = $user->projectsUser()->where(['project_id' => $request->project_id])->firstOrFail();
+
+        $projectUser->project->save();
+
+        return response($projectUser->project->api_key);
     }
 
     public function allowListAction(): Response
