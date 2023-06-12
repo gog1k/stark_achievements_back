@@ -55,17 +55,16 @@ class EventJobs extends Jobs
         if (
             $eventPartnerUser
             && $achievement
-            && empty($achievement->partnerUsers()->where(['user_id' => $eventPartnerUser->partner_user_id])->first())
+            && empty($achievement->partnerUsers()->where(['partner_users.id' => $eventPartnerUser->user->id])->first())
             && $eventPartnerUser->count >= $achievement->count
         ) {
-            $achievement->partnerUsers()->sync($eventPartnerUser->id, false);
-
+            $achievement->partnerUsers()->sync($eventPartnerUser->user->id, false);
 
             if ($achievement->project->callback_url) {
                 $data = [
                     "type" => "newUserAchievement",
                     "project_id" => $achievement->project->id,
-                    "user_id" => $eventPartnerUser->partner_user_id,
+                    "user_id" => $eventPartnerUser->user->user_id,
                     "achievement" => $achievement->name,
                 ];
 

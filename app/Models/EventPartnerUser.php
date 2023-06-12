@@ -53,7 +53,7 @@ class EventPartnerUser extends BaseModel
         return $this->hasOne(
             PartnerUser::class,
             'id',
-            'user_id'
+            'partner_user_id'
         );
     }
 

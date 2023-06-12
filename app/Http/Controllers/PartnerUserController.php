@@ -54,7 +54,7 @@ class PartnerUserController extends BaseController
         if ($this->access !== 'write') {
             return response([]);
         }
-        return response($this->partnerUser->getStats($this->access));
+        return response($this->partnerUser->getStats());
     }
 
     /**
@@ -66,7 +66,7 @@ class PartnerUserController extends BaseController
         if ($this->access !== 'write') {
             return response([]);
         }
-        return response($this->partnerUser->getAchievements($this->access));
+        return response($this->partnerUser->getAchievements());
     }
 
     /**
