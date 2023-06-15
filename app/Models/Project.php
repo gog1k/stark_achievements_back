@@ -26,10 +26,6 @@ class Project extends BaseModel
         'api_key' => 'encrypted',
     ];
 
-    protected $attributes = [
-        'api_key' => '',
-    ];
-
     /**
      * The attributes that should be hidden for serialization.
      *
