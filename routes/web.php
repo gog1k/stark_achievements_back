@@ -15,3 +15,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [\App\Http\Controllers\AuthController::class, 'signupAction']);
 Route::post('/signin', [\App\Http\Controllers\AuthController::class, 'signinAction']);
+Route::post('/forgot', [\App\Http\Controllers\AuthController::class, 'sendResetLinkEmailAction']);
+Route::post('/reset', [\App\Http\Controllers\AuthController::class, 'resetPasswordAction'])->middleware('guest');

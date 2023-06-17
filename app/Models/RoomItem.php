@@ -99,18 +99,22 @@ class RoomItem extends BaseModel
         );
     }
 
-    public function prePareforUser($userId)
+    public function prePareforUser($userId = 0)
     {
-        $customTemplate = $this
-            ->roomItemTemplates()
-            ->whereHas('partnerUsers', fn($query) => $query->where([
-                'partner_user_id' => $userId
-            ]))
-            ->latest()
-            ->first();
 
-        if (!is_null($customTemplate)) {
-            $customTemplate = $customTemplate->template;
+        if ($userId) {
+            $customTemplate = $this
+                ->roomItemTemplates()
+                ->whereHas('partnerUsers', fn($query) => $query->where([
+                    'partner_user_id' => $userId
+                ]))
+                ->latest()
+                ->first();
+
+            if (!is_null($customTemplate)) {
+                $customTemplate = $customTemplate->template;
+            }
+
         }
 
         [$cx, $cy, $cz] = explode(',', $this->coordinates);

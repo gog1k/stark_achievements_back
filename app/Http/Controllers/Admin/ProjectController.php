@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SentProjectKey;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ProjectController extends Controller
 {
@@ -58,9 +60,9 @@ class ProjectController extends Controller
 
         $projectUser = $user->projectsUser()->where(['project_id' => $request->project_id])->firstOrFail();
 
-        $projectUser->project->save();
+        Mail::to(auth()->user()->email)->send(new SentProjectKey($projectUser->project));
 
-        return response($projectUser->project->api_key);
+        return response('success');
     }
 
     public function allowListAction(): Response
@@ -79,8 +81,21 @@ class ProjectController extends Controller
 
     public function getAction(int $id): Response
     {
+
+        $result = Project
+            ::where(['id' => $id])
+            ->with('roomItems', fn($query) => $query->where('active', true))
+            ->whereHas('roomItems', fn($query) => $query->where('active', true))
+            ->first();
+
+        $items = [];
+
+        foreach ($result->roomItems as $roomItem) {
+            $items[] = $roomItem->prePareforUser();
+        }
+
         return response(
-            Project::where(['id' => $id])->first()
+            array_merge($result->toArray(),['room_items' => $items])
         );
     }
 

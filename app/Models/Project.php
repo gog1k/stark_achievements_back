@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+/**
+ *
+ * @property integer $id
+ * @property string $name
+ * @property string $api_key
+ * @property string $callback_url
+ */
 class Project extends BaseModel
 {
     use HasFactory;
