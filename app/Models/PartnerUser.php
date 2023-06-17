@@ -43,10 +43,10 @@ class PartnerUser extends Model
                 'active' => true,
                 'project_id' => $this->project_id,
             ])
-            ->with('eventPartnerUserByEvent')
-            ->with('eventPartnerUserByHash')
-            ->whereHas('eventPartnerUserByEvent')
-            ->whereHas('eventPartnerUserByHash');
+            ->with('eventPartnerUserByEvent', fn($query) => $query->where(['partner_user_id' => $this->id]))
+            ->with('eventPartnerUserByHash', fn($query) => $query->where(['partner_user_id' => $this->id]))
+            ->whereHas('eventPartnerUserByEvent', fn($query) => $query->where(['partner_user_id' => $this->id]))
+            ->whereHas('eventPartnerUserByHash', fn($query) => $query->where(['partner_user_id' => $this->id]));
 
         $result = [];
 

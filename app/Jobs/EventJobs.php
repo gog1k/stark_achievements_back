@@ -47,33 +47,37 @@ class EventJobs extends Jobs
     public function handle(): bool
     {
         $eventPartnerUser = $this->eventPartnerUser->refresh();
-        $achievement = $eventPartnerUser->event->achievements()->where([
+        $achievements = $eventPartnerUser->event->achievements()->where([
             'active' => true,
             'event_fields_hash' => $eventPartnerUser->fields_hash,
-        ])->first();
+        ])->get();
 
-        if (
-            $eventPartnerUser
-            && $achievement
-            && empty($achievement->partnerUsers()->where(['partner_users.id' => $eventPartnerUser->user->id])->first())
-            && $eventPartnerUser->count >= $achievement->count
-        ) {
-            $achievement->partnerUsers()->sync($eventPartnerUser->user->id, false);
+        if (!$eventPartnerUser){
+            return false;
+        }
 
-            if ($achievement->project->callback_url) {
-                $data = [
-                    "type" => "newUserAchievement",
-                    "project_id" => $achievement->project->id,
-                    "user_id" => $eventPartnerUser->user->user_id,
-                    "achievement" => $achievement->name,
-                ];
+        foreach ($achievements as $achievement) {
+            if (
+                empty($achievement->partnerUsers()->where(['partner_users.id' => $eventPartnerUser->user->id])->first())
+                && $eventPartnerUser->count >= $achievement->count
+            ) {
+                $achievement->partnerUsers()->sync($eventPartnerUser->user->id, false);
 
-                ksort($data);
-                $sign = hash('sha256', urldecode(http_build_query($data)) . $achievement->project->api_key);
+                if ($achievement->project->callback_url) {
+                    $data = [
+                        "type" => "newUserAchievement",
+                        "project_id" => $achievement->project->id,
+                        "user_id" => $eventPartnerUser->user->user_id,
+                        "achievement" => $achievement->name,
+                    ];
 
-                Http::withHeaders([
-                    'signature' => $sign
-                ])->post($achievement->project->callback_url, $data);
+                    ksort($data);
+                    $sign = hash('sha256', urldecode(http_build_query($data)) . $achievement->project->api_key);
+
+                    Http::withHeaders([
+                        'signature' => $sign
+                    ])->post($achievement->project->callback_url, $data);
+                }
             }
         }
 

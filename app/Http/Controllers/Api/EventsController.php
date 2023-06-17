@@ -61,14 +61,14 @@ class EventsController extends Controller
             ]);
         }
 
-        $eventWithUser = $event->with('eventPartnerUsers')
+        $eventWithUser = $event
             ->whereHas('eventPartnerUsers', fn($query) => $query->where([
                 'partner_user_id' => $user->id,
                 'fields_hash' => $fieldsHash,
             ]))
             ->first();
 
-        if (empty($eventWithUser) ) {
+        if (empty($eventWithUser)) {
             $eventPartnerUser = EventPartnerUser::create([
                 'event_id' => $event->id,
                 'partner_user_id' => $user->id,
@@ -77,7 +77,12 @@ class EventsController extends Controller
                 'fields_hash' => $fieldsHash,
             ]);
         } else {
-            $eventPartnerUser = $eventWithUser->eventPartnerUsers()->where(['fields_hash' => $fieldsHash,])->first();
+            $eventPartnerUser = $eventWithUser
+                ->eventPartnerUsers()
+                ->where([
+                    'partner_user_id' => $user->id,
+                    'fields_hash' => $fieldsHash,
+                ])->first();
             $eventPartnerUser->count++;
             $eventPartnerUser->save();
             $eventPartnerUser->refresh();

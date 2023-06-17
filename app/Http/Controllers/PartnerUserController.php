@@ -28,11 +28,11 @@ class PartnerUserController extends BaseController
         $userData = json_decode($userData, true);
 
         Validator::make($userData, [
-            'id' => 'required|integer|exists:users,id',
+            'id' => 'required|integer|exists:event_partner_user,id',
             'access' => 'required|string|in:view,write',
         ])->validate();
 
-        $this->partnerUser = PartnerUser::where(['id' => $userData['id']])->first();
+        $this->partnerUser = PartnerUser::where(['id' => $userData['id']])->firstOrFail();
         $this->access = $userData['access'];
     }
 

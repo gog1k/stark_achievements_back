@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $event_id
- * @property int $user_id
+ * @property int $partner_user_id
  * @property int $count
  * @property string $fields
  * @property string $fields_hash
