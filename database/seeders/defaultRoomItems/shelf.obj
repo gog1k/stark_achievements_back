@@ -344,7 +344,7 @@ vt 0.29843750596046 0.375 0
 # 187 texture coordinates
 
 o shelf
-usemtl Материал.4
+usemtl shelf
 f 3/4 4/3 2/2 1/1
 f 5/8 6/7 4/6 3/5
 f 7/12 8/11 6/10 5/9

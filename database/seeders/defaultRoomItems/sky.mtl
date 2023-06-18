@@ -3,7 +3,7 @@
 newmtl Объект Сфера.1
 Ka 1 1 1
 Kd 0.80000001192093 0.80000001192093 0.80000001192093
-map_Kd sky.jpg
+map_Kd sky.psd
 Ks 1 1 1
 Ns 50
 illum 7

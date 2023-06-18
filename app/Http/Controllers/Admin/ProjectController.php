@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SentProjectKey;
+use App\Models\Group;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -85,7 +86,6 @@ class ProjectController extends Controller
         $result = Project
             ::where(['id' => $id])
             ->with('roomItems', fn($query) => $query->where('active', true))
-            ->whereHas('roomItems', fn($query) => $query->where('active', true))
             ->first();
 
         $items = [];
@@ -108,8 +108,23 @@ class ProjectController extends Controller
 
         $project = Project::create([
             'name' => $request->name,
-            'callback_url' => $request->callback_url,
+            'callback_url' => $request->callback_url ?? '',
         ]);
+
+        $user = User::where('id', auth()->user()->id)->firstOrFail();
+
+        $user->projectsUser()->where('user_id', auth()->user()->id)->create([
+            'project_id' => $project->id,
+        ]);
+
+        $user->refresh();
+
+        foreach ($user->projectsUser()->where([
+            'user_id' => auth()->user()->id,
+            'project_id' => $project->id,
+        ])->get() as $projectUser) {
+            $projectUser->groups()->attach(Group::where('name', 'ProjectAdmin')->first()->id);
+        }
 
         return response($project);
     }

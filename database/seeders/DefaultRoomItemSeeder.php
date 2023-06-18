@@ -23,6 +23,12 @@ class DefaultRoomItemSeeder extends Seeder
             'shelf',
             'window',
             'door',
+            'board',
+            'comp',
+            'desc',
+            'picture',
+            'place',
+            'room2',
         ];
 
         foreach ($items as $item) {

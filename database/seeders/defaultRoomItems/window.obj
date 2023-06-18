@@ -175,7 +175,7 @@ vt 0.89325171709061 0.05762887001038 0
 # 120 texture coordinates
 
 o window
-usemtl Материал.2
+usemtl window
 f 3/4 4/3 2/2 1/1
 f 5/8 6/7 4/6 3/5
 f 7/12 8/11 6/10 5/9

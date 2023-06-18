@@ -92,15 +92,17 @@ class AuthController extends Controller
             'name' => $request->name,
         ]);
 
-        $user->projectsUser()->create([
+        $user->projectsUser()->where('user_id', $user->id)->create([
             'project_id' => $project->id,
         ]);
 
         $user->refresh();
 
-        foreach ($user->projectsUser as $projectUser) {
+        foreach ($user->projectsUser()->where([
+            'user_id' => auth()->user()->id,
+            'project_id' => $project->id,
+        ])->get() as $projectUser) {
             $projectUser->groups()->attach(Group::where('name', 'ProjectAdmin')->first()->id);
-            return response($this->getUserInfo($user));
         }
 
         $user->refresh();
