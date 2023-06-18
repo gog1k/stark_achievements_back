@@ -28,7 +28,7 @@ class PartnerUserController extends BaseController
         $userData = json_decode($userData, true);
 
         Validator::make($userData, [
-            'id' => 'required|integer|exists:event_partner_user,id',
+            'id' => 'required|integer|exists:partner_users,id',
             'access' => 'required|string|in:view,write',
         ])->validate();
 
