@@ -7,5 +7,5 @@ RUN apk add mc
 WORKDIR /app
 COPY . /app/
 COPY Helm/10-storage.conf /opt/docker/etc/nginx/vhost.common.d/10-storage.conf
-RUN rm -f public/storage && ln -s /app/storage/app/public public/storage
+RUN ln -sfn /app/storage/app/public public/storage
 RUN chown -R application:application .
